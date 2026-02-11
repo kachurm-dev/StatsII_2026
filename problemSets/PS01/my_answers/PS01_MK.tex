@@ -1,0 +1,331 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage{graphicx,textcomp}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage[reqno]{amsmath}
+\usepackage{amsthm}
+\usepackage{fancyvrb}
+\usepackage{amssymb,enumerate}
+\usepackage[all]{xy}
+\usepackage{endnotes}
+\usepackage{lscape}
+\newtheorem{com}{Comment}
+\usepackage{float}
+\usepackage{hyperref}
+\newtheorem{lem} {Lemma}
+\newtheorem{prop}{Proposition}
+\newtheorem{thm}{Theorem}
+\newtheorem{defn}{Definition}
+\newtheorem{cor}{Corollary}
+\newtheorem{obs}{Observation}
+\usepackage[compact]{titlesec}
+\usepackage{dcolumn}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{multirow}
+\usepackage{xcolor}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+\definecolor{light-gray}{gray}{0.65}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstset{style=mystyle}
+\newcommand{\Sref}[1]{Section~\ref{#1}}
+\newtheorem{hyp}{Hypothesis}
+
+\title{Problem Set 1}
+\date{Due: February 11, 2026}
+\author{Applied Stats II}
+
+
+\begin{document}
+	\maketitle
+	\section*{Instructions}
+	\begin{itemize}
+	\item Please show your work! You may lose points by simply writing in the answer. If the problem requires you to execute commands in \texttt{R}, please include the code you used to get your answers. Please also include the \texttt{.R} file that contains your code. If you are not sure if work needs to be shown for a particular problem, please ask.
+\item Your homework should be submitted electronically on GitHub in \texttt{.pdf} form.
+\item This problem set is due before 23:59 on Wednesday February 11, 2026. No late assignments will be accepted.
+	\end{itemize}
+
+	\vspace{.25cm}
+\section*{Question 1} 
+\vspace{.25cm}
+\noindent The Kolmogorov-Smirnov test uses cumulative distribution statistics test the similarity of the empirical distribution of some observed data and a specified PDF, and serves as a goodness of fit test. The test statistic is created by:
+
+$$D = \max_{i=1:n} \Big\{ \frac{i}{n}  - F_{(i)}, F_{(i)} - \frac{i-1}{n} \Big\}$$
+
+\noindent where $F$ is the theoretical cumulative distribution of the distribution being tested and $F_{(i)}$ is the $i$th ordered value. Intuitively, the statistic takes the largest absolute difference between the two distribution functions across all $x$ values. Large values indicate dissimilarity and the rejection of the hypothesis that the empirical distribution matches the queried theoretical distribution. The p-value is calculated from the Kolmogorov-
+Smirnoff CDF:
+
+$$p(D \leq d)= \frac{\sqrt {2\pi}}{d} \sum _{k=1}^{\infty }e^{-(2k-1)^{2}\pi ^{2}/(8d^{2})}$$
+
+
+\noindent which generally requires approximation methods (see \href{https://core.ac.uk/download/pdf/25787785.pdf}{Marsaglia, Tsang, and Wang 2003}). This so-called non-parametric test (this label comes from the fact that the distribution of the test statistic does not depend on the distribution of the data being tested) performs poorly in small samples, but works well in a simulation environment. Write an \texttt{R} function that implements this test where the reference distribution is normal. Using \texttt{R} generate 1,000 Cauchy random variables (\texttt{rcauchy(1000, location = 0, scale = 1)}) and perform the test (remember, use the same seed, something like \texttt{set.seed(123)}, whenever you're generating your own data).\\
+	
+	
+\noindent As a hint, you can create the empirical distribution and theoretical CDF using this code:
+
+\begin{lstlisting}[language=R]
+	# create empirical distribution of observed data
+	ECDF <- ecdf(data)
+	empiricalCDF <- ECDF(data)
+	# generate test statistic
+	D <- max(abs(empiricalCDF - pnorm(data))) \end{lstlisting}
+
+
+
+\subsection*{My responses}
+Through the Kolmogorov-Smirnov (KS) test I will be assessing the difference between two cumulative distribution functions (CDFs).This test compares the empirical cumulative distribution function (CDF) of the observed data with the theoretical CDF of a specified distribution and quantifies the largest discrepancy between them. Specfifically, I will be comparing an empirical CDF with Cauchy random variables, with a theoretical CDF where the reference distribution is normal. .
+
+\paragraph{Step 1: Data}
+I generate $n=1000$ observations from a Cauchy distribution with location $0$ and scale $1$, using a fixed seed to ensure reproducibility:
+\begin{verbatim}
+	set.seed(123)
+	x <- rcauchy(1000, location = 0, scale = 1)
+\end{verbatim}
+This dataset is then tested against a Normal reference distribution (here, Normal$(0,1)$). The KS statistic is defined using the ordered sample values $x_{(1)} \le \cdots \le x_{(n)}$. I first remove non-finite values and sort the sample:
+\begin{verbatim}
+	x <- x[is.finite(x)]
+	x_sorted <- sort(x)
+\end{verbatim}
+
+\paragraph{Step 2: Evaluate the theoretical CDF at ordered sample points.}
+Let $F$ be the theoretical CDF of the reference distribution. Since the problem asks for a Normal reference, I define:
+\[
+F(t) = \Phi\!\left(\frac{t-\mu}{\sigma}\right),
+\]
+implemented in R as:
+\begin{verbatim}
+	F_fun <- function(t) pnorm(t, mean = mean, sd = sd)
+	F_i <- F_fun(x_sorted)
+\end{verbatim}
+For numerical safety, I clamp $F_i$ to $[0,1]$:
+\begin{verbatim}
+	F_i <- pmin(pmax(F_i, 0), 1)
+\end{verbatim}
+
+\paragraph{Step 3: Compute the KS statistic from the definition.}
+The KS statistic compares the ECDF jumps to the theoretical CDF values at the ordered points. I compute the two one-sided deviations:
+\[
+D^+ = \max_{i=1,\dots,n}\left(\frac{i}{n} - F(x_{(i)})\right), \qquad
+D^- = \max_{i=1,\dots,n}\left(F(x_{(i)}) - \frac{i-1}{n}\right),
+\]
+and the two-sided statistic:
+\[
+D = \max(D^+, D^-).
+\]
+In R this is:
+\begin{verbatim}
+	i <- seq_len(n)
+	D_plus  <- max(i / n - F_i)
+	D_minus <- max(F_i - (i - 1) / n)
+	D <- max(D_plus, D_minus)
+\end{verbatim}
+Intuitively, $D$ is the largest vertical distance between the empirical and theoretical CDFs across all $x$.
+
+\paragraph{Step 3: Approximating the KS CDF and computing the p-value.}
+The problem set provides the Kolmogorov--Smirnov CDF in series form. Since it is given as
+\[
+\Pr(D \le d)
+= \frac{\sqrt{2\pi}}{d}\sum_{k=1}^{\infty}\exp\!\left(-\frac{(2k-1)^2\pi^2}{8d^2}\right),
+\]
+I approximate the infinite sum by truncating at $k=1,\dots,K$ and optionally stopping early when terms become negligible:
+\begin{verbatim}
+	ks_cdf <- function(d, K = 5000, tol = 1e-12) {
+		if (!is.finite(d) || d <= 0) return(0)
+		k <- 1:K
+		expo <- -((2 * k - 1)^2 * pi^2) / (8 * d^2)
+		terms <- exp(expo)
+		idx <- which(terms < tol)
+		if (length(idx) > 0) terms <- terms[1:(min(idx) - 1)]
+		cdf <- (sqrt(2 * pi) / d) * sum(terms)
+		pmin(pmax(cdf, 0), 1)
+	}
+\end{verbatim}
+
+Because the asymptotic Kolmogorov distribution is typically expressed in terms of $\sqrt{n}D$, I compute:
+\[
+d_{\text{scaled}} = \sqrt{n}\,D,
+\]
+then evaluate the CDF at $d_{\text{scaled}}$ and obtain the right-tail p-value:
+\[
+p = 1 - \Pr(D \le d_{\text{scaled}}).
+\]
+In R:
+\begin{verbatim}
+	d_scaled <- sqrt(stat$n) * D
+	cdf_prob <- ks_cdf(d_scaled, K = K, tol = tol)
+	p_value <- 1 - cdf_prob
+\end{verbatim}
+
+\paragraph{Step 4: Visual check (ECDF vs theoretical CDF).}
+To complement the numeric test, I plot the ECDF of the data against the Normal CDF:
+\begin{verbatim}
+	plot.ecdf(x, main = "ECDF(data) vs Normal CDF", verticals = TRUE,
+	do.points = FALSE, xlab = "x", ylab = "CDF")
+	curve(pnorm(x, mean = mean, sd = sd), add = TRUE, lty = 2)
+\end{verbatim}
+A large visible separation between curves should correspond to a large $D$.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.85\textwidth]{Plot1.png}
+	\caption{Empirical CDF of the simulated data compared to the Normal$(0,1)$ CDF. The maximum vertical distance between the curves corresponds to the Kolmogorov--Smirnov statistic $D$.}
+	\label{fig:ks_ecdf}
+\end{figure}
+
+
+\subsubsection*{Results}
+Using Normal$(0,1)$ as the reference distribution, my function returns:
+\begin{verbatim}
+	D       = 0.1357281
+	D_plus  = 0.1235615
+	D_minus = 0.1357281
+	n       = 1000
+	p_value = 8.75966e-14
+\end{verbatim}
+
+\subsubsection*{Interpretation} 
+The KS statistic $D$ is the maximum vertical distance between the empirical CDF of the sample and the theoretical Normal CDF. Here, $D \approx 0.136$ means that at some value of $x$, the empirical probability $\hat F_n(x)$ differs from the Normal$(0,1)$ probability $F(x)$ by about $0.136$ (13.6 percentage points), which is a substantial discrepancy for a sample of size $1000$.
+
+\paragraph{Hypothesis test conclusion.}
+The p-value is extremely small ($p \approx 8.76\times 10^{-14}$), so at any conventional significance level (e.g., $\alpha = 0.05$ or $\alpha = 0.01$) I reject the null hypothesis that the data are distributed as Normal$(0,1)$. This is expected because the Cauchy distribution has much heavier tails than the Normal distribution, so the empirical distribution of the simulated data departs strongly from a Normal CDF, especially in the extremes.
+
+\paragraph{Confirming results with built-in function in R.}
+To validate my manual implementation, I compared the resulting KS statistic and p-value to those obtained from R’s built-in ks.test() function using the same data and Normal$(0,1)$ reference distribution. The results were consistent, confirming the correctness of my implementation.
+
+
+\vspace{1in}
+
+\section*{Question 2}
+\noindent Estimate an OLS regression in \texttt{R} that uses the Newton-Raphson algorithm (specifically \texttt{BFGS}, which is a quasi-Newton method), and show that you get the equivalent results to using \texttt{lm}. Use the code below to create your data.
+\vspace{.5cm}
+\lstinputlisting[language=R, firstline=51,lastline=53]{PS01.R} 
+
+
+
+
+\subsection*{My responses}
+
+\subsubsection*{Data Generating Process}
+
+We simulate data from the linear model
+
+\[
+y_i = \beta_0 + \beta_1 x_i + \varepsilon_i,
+\quad \varepsilon_i \sim \mathcal{N}(0, \sigma^2),
+\]
+
+with true parameters
+\[
+\beta_0 = 0, \quad \beta_1 = 2.75, \quad \sigma = 1.5.
+\]
+
+The data are generated as:
+\[
+x_i \sim \text{Uniform}(1,10), \quad i = 1,\dots,200.
+\]
+
+\subsubsection*{OLS Estimation using \texttt{lm()}}
+
+First, the model is estimated using the standard OLS function in \texttt{R}. This helps us get an idea of the results we are aiming for. The standard function is:
+
+\[
+\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_i.
+\]
+
+The estimated coefficients are:
+
+\[
+\hat{\beta}_0^{OLS} = 0.13919,
+\quad
+\hat{\beta}_1^{OLS} = 2.72670.
+\]
+
+The residual standard error is:
+
+\[
+\hat{\sigma}_{OLS} = 1.447.
+\]
+
+The model explains approximately $95.6\%$ of the variation in $y$ ($R^2 = 0.956$).
+
+\subsubsection*{Maximum Likelihood Estimation}
+
+Under the assumption of normally distributed errors, the log-likelihood function is:
+
+\[
+\ell(\beta_0,\beta_1,\sigma)
+=
+-\frac{n}{2}\log(2\pi)
+- n\log(\sigma)
+-\frac{1}{2\sigma^2}
+\sum_{i=1}^n (y_i - \beta_0 - \beta_1 x_i)^2.
+\]
+
+The negative log-likelihood (which is minimized numerically) is:
+
+\[
+\text{NLL}
+=
+\frac{n}{2}\log(2\pi)
++ n\log(\sigma)
++ \frac{1}{2\sigma^2}
+\sum_{i=1}^n (y_i - \beta_0 - \beta_1 x_i)^2.
+\]
+
+To ensure admissible parameter values, the constraint $\sigma > 0$ is imposed.
+
+\subsubsection*{Optimization via BFGS}
+
+The parameters $\theta = (\beta_0, \beta_1, \sigma)$ are estimated using the quasi-Newton BFGS algorithm implemented in \texttt{optim()}. Starting values were chosen as:
+
+\[
+(\beta_0^{(0)}, \beta_1^{(0)}, \sigma^{(0)}) = (0, 0, 5).
+\]
+
+After having run the \texttt{optim} function in \texttt{R}, my estimated parameters are:
+
+\[
+\hat{\beta}_0^{MLE} = 0.13919,
+\quad
+\hat{\beta}_1^{MLE} = 2.72670,
+\quad
+\hat{\sigma}_{MLE} = 1.43955.
+\]
+
+\subsubsection*{Comparison of Results and conclusion}
+
+The estimated coefficients from maximum likelihood estimation are numerically identical (up to rounding error) to those obtained from OLS via \texttt{lm()}. This demonstrates that OLS under normally distributed errors is equivalent to maximum likelihood estimation. The BFGS quasi-Newton optimization successfully recovers the same coefficient estimates as \texttt{lm()}, confirming that OLS can be interpreted as a numerical optimization problem.
+
+
+
+
+\end{document}
