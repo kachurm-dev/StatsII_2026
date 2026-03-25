@@ -1,0 +1,295 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage{graphicx,textcomp}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage[reqno]{amsmath}
+\usepackage{amsthm}
+\usepackage{fancyvrb}
+\usepackage{amssymb,enumerate}
+\usepackage[all]{xy}
+\usepackage{endnotes}
+\usepackage{lscape}
+\newtheorem{com}{Comment}
+\usepackage{float}
+\usepackage{hyperref}
+\newtheorem{lem} {Lemma}
+\newtheorem{prop}{Proposition}
+\newtheorem{thm}{Theorem}
+\newtheorem{defn}{Definition}
+\newtheorem{cor}{Corollary}
+\newtheorem{obs}{Observation}
+\usepackage[compact]{titlesec}
+\usepackage{dcolumn}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{multirow}
+\usepackage{xcolor}
+\newcolumntype{.}{D{.}{.}{-1}}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+\definecolor{light-gray}{gray}{0.65}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstset{style=mystyle}
+\newcommand{\Sref}[1]{Section~\ref{#1}}
+\newtheorem{hyp}{Hypothesis}
+
+\title{Problem Set 3}
+\date{Due: March 25, 2026}
+\author{Applied Stats II}
+
+
+\begin{document}
+	\maketitle
+	\section*{Instructions}
+	\begin{itemize}
+	\item Please show your work! You may lose points by simply writing in the answer. If the problem requires you to execute commands in \texttt{R}, please include the code you used to get your answers. Please also include the \texttt{.R} file that contains your code. If you are not sure if work needs to be shown for a particular problem, please ask.
+\item Your homework should be submitted electronically on GitHub in \texttt{.pdf} form.
+\item This problem set is due before 23:59 on Wednesday March 25, 2026. No late assignments will be accepted.
+	\end{itemize}
+
+	\vspace{.25cm}
+\section*{Question 1}
+\vspace{.25cm}
+\noindent We are interested in how governments' management of public resources impacts economic prosperity. Our data come from \href{https://www.researchgate.net/profile/Adam_Przeworski/publication/240357392_Classifying_Political_Regimes/links/0deec532194849aefa000000/Classifying-Political-Regimes.pdf}{Alvarez, Cheibub, Limongi, and Przeworski (1996)} and is labelled \texttt{gdpChange.csv} on GitHub. The dataset covers 135 countries observed between 1950 or the year of independence or the first year forwhich data on economic growth are available ("entry year"), and 1990 or the last year for which data on economic growth are available ("exit year"). The unit of analysis is a particular country during a particular year, for a total $>$ 3,500 observations. 
+
+\begin{itemize}
+	\item
+	Response variable: 
+	\begin{itemize}
+		\item \texttt{GDPWdiff}: Difference in GDP between year $t$ and $t-1$. Possible categories include: "positive", "negative", or "no change"
+	\end{itemize}
+	\item
+	Explanatory variables: 
+	\begin{itemize}
+		\item
+		\texttt{REG}: 1=Democracy; 0=Non-Democracy
+		\item
+		\texttt{OIL}: 1=if the average ratio of fuel exports to total exports in 1984-86 exceeded 50\%; 0= otherwise
+	\end{itemize}
+	
+\end{itemize}
+\newpage
+\noindent Please answer the following questions:
+
+\begin{enumerate}
+	\item Construct and interpret an unordered multinomial logit with \texttt{GDPWdiff} as the output and "no change" as the reference category, including the estimated cutoff points and coefficients.
+	\item Construct and interpret an ordered multinomial logit with \texttt{GDPWdiff} as the outcome variable, including the estimated cutoff points and coefficients.
+	
+	
+\end{enumerate}
+
+\section*{Question 2} 
+\vspace{.25cm}
+
+\noindent Consider the data set \texttt{MexicoMuniData.csv}, which includes municipal-level information from Mexico. The outcome of interest is the number of times the winning PAN presidential candidate in 2006 (\texttt{PAN.visits.06}) visited a district leading up to the 2009 federal elections, which is a count. Our main predictor of interest is whether the district was highly contested, or whether it was not (the PAN or their opponents have electoral security) in the previous federal elections during 2000 (\texttt{competitive.district}), which is binary (1=close/swing district, 0="safe seat"). We also include \texttt{marginality.06} (a measure of poverty) and \texttt{PAN.governor.06} (a dummy for whether the state has a PAN-affiliated governor) as additional control variables. 
+
+\begin{enumerate}
+	\item [(a)]
+	Run a Poisson regression because the outcome is a count variable. Is there evidence that PAN presidential candidates visit swing districts more? Provide a test statistic and p-value.
+
+	\item [(b)]
+	Interpret the \texttt{marginality.06} and \texttt{PAN.governor.06} coefficients.
+	
+	\item [(c)]
+	Provide the estimated mean number of visits from the winning PAN presidential candidate for a hypothetical district that was competitive (\texttt{competitive.district}=1), had an average poverty level (\texttt{marginality.06} = 0), and a PAN governor (\texttt{PAN.governor.06}=1).
+	
+\end{enumerate}
+
+\newpage
+
+\section*{My answers}
+\subsection*{Question 1}
+
+
+\noindent \textbf{(1.1) Unordered multinomial logit.}
+
+
+First, I cleaned the data and kept only the relevant variables, dropping any missing observations. I then created 3 categories: negative, no change, and positive. As indicated, I used "no change" as the reference category. The unordered model thus estimated two comparisons: positive vs. no change, and negative vs. no change, as a function on REG (Democracy or not) and OIL (majority of oil exports, or not).
+
+The unordered model provided me with the following outputs:
+
+
+\begin{table}[!htbp] \centering 
+	\caption{Table of Coefficients: Unordered Multinomial Logit} 
+	\label{} 
+	\begin{tabular}{@{\extracolsep{5pt}}lcc} 
+		\\[-1.8ex]\hline 
+		\hline \\[-1.8ex] 
+		& \multicolumn{2}{c}{\textit{Dependent variable:}} \\ 
+		\cline{2-3} 
+		\\[-1.8ex] & negative & positive \\ 
+		\\[-1.8ex] & (1) & (2)\\ 
+		\hline \\[-1.8ex] 
+		Oil & 4.784 & 4.576 \\ 
+		& (6.885) & (6.885) \\ 
+		& & \\ 
+		Democracy & 1.379$^{*}$ & 1.769$^{**}$ \\ 
+		& (0.769) & (0.767) \\ 
+		& & \\ 
+		Constant & 3.805$^{***}$ & 4.534$^{***}$ \\ 
+		& (0.271) & (0.269) \\ 
+		& & \\ 
+		\hline \\[-1.8ex] 
+		Akaike Inf. Crit. & 4,690.770 & 4,690.770 \\ 
+		\hline 
+		\hline \\[-1.8ex] 
+		\textit{Note:}  & \multicolumn{2}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+	\end{tabular} 
+\end{table} 
+
+According to the model, democracy (\texttt{REG}) has a positive and statistically significant effect on both negative and positive GDP growth relative to no change. Specifically, democracies are about 4 times more likely to experience negative growth and nearly 6 times more likely to experience positive growth compared to non-democracies. 
+
+For negative growth, the coefficient for democracy is 1.379 and statistically significant; exponentiating this gives approximately 3.97. This means that democracies are about 4 times more likely to experience negative growth rather than no change, compared to non-democracies. For positive growth, the coefficient is 1.769 and also statistically significant; exponentiating gives approximately 5.87. Thus, democracies are about 5.9 times more likely to experience positive growth rather than no change. This suggests that democratic regimes are associated with greater economic fluctuation rather than stability.
+
+In contrast, oil dependence (\texttt{OIL}) does not have a statistically significant effect on GDP change. The large standard errors indicate substantial uncertainty, and I thus cannot conclude that oil-rich countries differ from others in terms of economic growth outcomes. 
+
+Overall, democracy appears to increase the likelihood of economic change (both positive and negative), while oil dependence shows no clear relationship with GDP growth.
+
+\vspace{1cm}
+
+\noindent \textbf{(1.2) Ordered multinomial logit.}
+
+
+\noindent Next, I estimated an ordered multinomial logit model where GDP change is the outcome variable, taking three ordered categories: \textit{negative}, \textit{no change}, and \textit{positive}. This model accounts for the ordinal nature of the dependent variable. The model provided me with the following output: 
+
+% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
+% Date and time: Tue, Mar 24, 2026 - 18:21:41
+\begin{table}[H] \centering 
+	\caption{Ordered Multinomial Logit Model} 
+	\label{} 
+	\begin{tabular}{@{\extracolsep{5pt}}lc} 
+		\\[-1.8ex]\hline 
+		\hline \\[-1.8ex] 
+		& \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+		\cline{2-2} 
+		\\[-1.8ex] & GDPWdiff $(negative < no change < positive)$ \\ 
+		\hline \\[-1.8ex] 
+		REG & 0.398$^{***}$ \\ 
+		& (0.075) \\ 
+		& \\ 
+		OIL & $-$0.199$^{*}$ \\ 
+		& (0.116) \\ 
+		& \\ 
+		\hline \\[-1.8ex] 
+		Observations & 3,721 \\ 
+		\hline 
+		\hline \\[-1.8ex] 
+		\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+	\end{tabular} 
+\end{table} 
+
+
+The outcome shows that the coefficient for democracy \texttt{REG} is positive and highly statistically significant ($\beta = 0.398$, $p < 0.01$). Having exponentiated the log-odds to obtain the odds ratio, we obtain: $\exp(0.398) \approx 1.49$. This indicates that democracies have approximately 1.5 times higher odds of being in a higher GDP growth category (i.e., moving from negative to no change or from no change to positive) compared to non-democracies, holding oil dependence constant. Substantively, this suggests that democratic regimes are associated with better economic outcomes.
+
+The coefficient for oil dependence \texttt{OIL} is negative and weakly statistically significant ($\beta = -0.199$, $p < 0.1$). Exponentiating gives $\exp(-0.199) \approx 0.82$, indicating that oil-rich countries have about 18\% lower odds of being in a higher GDP growth category. This suggests a potential negative relationship between oil dependence and economic performance, although the evidence is relatively weak.
+
+The model also provided two cutoff points (thresholds): $\tau_1 = -0.731$, which separates \textit{negative} from \textit{no change}, and $\tau_2 = -0.711$, which separates \textit{no change} from \textit{positive}. The cutoff points are very close together, likely reflecting that the "no change" category is very small (16 observations).
+
+Overall, the results indicate that democracy is associated with improved economic outcomes, while oil dependence may reduce the likelihood of higher growth, although this effect is only marginally significant.
+
+\textbf{Conclusion} The unordered multinomial logit model estimates separate effects for each outcome relative to the reference category, showing that democracy increases the likelihood of both positive and negative growth (i.e., more economic change). In contrast, the ordered model assumes a natural ordering and estimates a single effect, indicating that democracy increases the likelihood of moving toward higher growth overall. This difference is important because the unordered model highlights potential volatility, while the ordered model provides a more concise summary of directional improvement, assuming the ordering is appropriate.
+
+
+
+\subsection*{Question 2}
+
+As indicated in the instructions, since \texttt{PAN.visits.06} is a count variable, I estimated a Poisson regression model with \texttt{competitive.district}, \texttt{marginality.06}, and \texttt{PAN.visits.06} as predictors. The Poisson model provides for the following output: 
+
+% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
+% Date and time: Wed, Mar 25, 2026 - 10:27:37
+\begin{table}[!htbp] \centering 
+	\caption{Table of Coefficients: Poisson Model Mexico} 
+	\label{} 
+	\begin{tabular}{@{\extracolsep{5pt}}lc} 
+		\\[-1.8ex]\hline 
+		\hline \\[-1.8ex] 
+		& \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+		\cline{2-2} 
+		\\[-1.8ex] & PAN.visits.06 \\ 
+		\hline \\[-1.8ex] 
+		Competitive District & $-$0.081 \\ 
+		& t = $-$0.477 \\ 
+		& p = 0.634 \\ 
+		& \\ 
+		Poverty & $-$2.080 \\ 
+		& t = $-$17.728 \\ 
+		& p = 0.000$^{***}$ \\ 
+		& \\ 
+		PAN-Affilitated Governor & $-$0.312 \\ 
+		& t = $-$1.869 \\ 
+		& p = 0.062$^{*}$ \\ 
+		& \\ 
+		Constant & $-$3.810 \\ 
+		& t = $-$17.156 \\ 
+		& p = 0.000$^{***}$ \\ 
+		& \\ 
+		\hline \\[-1.8ex] 
+		Observations & 2,407 \\ 
+		Log Likelihood & $-$645.606 \\ 
+		Akaike Inf. Crit. & 1,299.213 \\ 
+		\hline 
+		\hline \\[-1.8ex] 
+		\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+	\end{tabular} 
+\end{table} 
+
+
+
+\paragraph{(a)}
+
+Based on the model output, the coefficient for \texttt{competitive.district} is $-0.081$ with a test statistic of $t = -0.477$ and a p-value of $p = 0.634$. 
+
+This coefficient is not statistically significant at conventional levels, indicating that there is no evidence that PAN presidential candidates visit competitive (swing) districts more frequently than non-competitive districts. The estimated effect is also small and negative, suggesting no substantive increase in visits to swing districts.
+
+\paragraph{(b)}
+
+The coefficient for \texttt{marginality.06} (poverty) is $-2.080$ and is highly statistically significant ($p < 0.01$). Since Poisson coefficients are in log terms, I exponentiate: $\exp(-2.080) \approx 0.125$. This implies that higher poverty levels are associated with substantially fewer candidate visits; specifically, a one-unit increase in marginality reduces the expected number of visits by about 87.5\%, holding other variables constant.
+
+The coefficient for \texttt{PAN.governor.06} is $-0.312$ and is weakly statistically significant ($p = 0.062$). Exponentiating gives $\exp(-0.312) \approx 0.73$, indicating that districts in states with a PAN-affiliated governor receive about 27\% fewer visits on average, although this effect is only marginally significant.
+
+\paragraph{(c)}
+To estimate the number of visits from the winning PAN presidential candidate for a hypothetical district that was competitive, I run the following code:
+
+\lstinputlisting[language=R, firstline=139, lastline=153]{PS3_MK_answers.R}
+
+
+It provides the following reults:
+
+\begin{verbatim}           
+	0.01494818 0.01494827 
+\end{verbatim}
+
+\noindent This result can be interpreted as, when a district is competitive, has an average poverty level, and has a PAN governor, the estimated mean number of visits from the winning PAN presidential candidate is 0.0149. This number is not a count value, but due to the fact that it is the average of the number of visits it can be interpreted as a decimal value. 
+
+
+\noindent \textbf{Conclusion.}
+Overall, the  model provides no evidence that PAN candidates visited competitive districts more often in 2006. Rather, the clearest result is that higher marginality is associated with substantially fewer visits, while the negative association for municipalities in states with a PAN governor is weaker and only marginally significant.\\
+
+\end{document}
